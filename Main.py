@@ -16,9 +16,9 @@ import re
 import os
 from tensorflow.keras.models import (Model, load_model, Sequential)
 from tensorflow.keras.preprocessing import image
-import PIL.Image
 import tensorflow as tf
-#import pymysql
+import PIL.Image
+import pymysql
 
 from Enterw import Ui_EnterWindow
 from Mainw import Ui_MainWindow
@@ -27,7 +27,7 @@ from config import host, user, password, db_name
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 exec_path = os.getcwd()
-fn = 'n.jpg'
+fn = 'default.jpg' #n
 
 app = QtWidgets.QApplication(sys.argv)
 EnterWindow = QtWidgets.QMainWindow()
@@ -72,7 +72,11 @@ def openOtherWindow():
 
             try:
                 with connection.cursor() as cursor:
-                    if patient_flg:
+                    if patient_flg and res == 0.00: # Обновление только заметки и данных
+                        cursor.execute(
+                        "UPDATE `patients` SET `patients`.`note` = '" + ui.plainTextEdit.toPlainText() + "'"
+                    " WHERE `patients`.`id_patient` = +'" + str(patient_id) + "';")
+                    elif patient_flg and res != 0.00:
                         cursor.execute(
                             "UPDATE `patients` SET `patients`.`surname` = '" + ui.lineFam.text() + "',"
                             " `patients`.`name` = '" + ui.lineName.text() + "', "
@@ -102,37 +106,28 @@ def openOtherWindow():
     def tumor_predict():
         global res
         global tumor
-        print("1")
         img_path = os.path.join(exec_path, fn)
-        print("2")
-        try:
-            model = load_model('VGG19_best4_orig.h5')
-        except Exception as ex:
-            print(ex)
+        model = load_model('VGG19_best4_orig.h5')
         image_size = 224  # VGG19
-        print("3")
         img = image.load_img(img_path, target_size=(image_size, image_size))
-        print("4")
         # Преобразуем изображение в массив для распознавания
         x = image.img_to_array(img)
         x /= 255
         x = np.expand_dims(x, axis=0)
         # Запускаем распознавание
-        print("5")
         prediction = model.predict(x)
-        print("6")
         if prediction[[0]] < 0.5:
             tumor = 0
             res = str(1 - prediction[[0]])
-            ui.lineRes.setText('Normal, вероятность: ' + res[4:6] + '.' + res[6:8] +  '%')
+            ui.lineRes.setText('Норма, вероятность: ' + res[4:6] + '.' + res[6:8] +  '%')
         else:
             tumor = 1
             res = str(prediction[[0]])
-            ui.lineRes.setText('Tumor, вероятность: '  + res[4:6] + '.' + res[6:8] +  '%')
+            ui.lineRes.setText('Опухоль, вероятность: '  + res[4:6] + '.' + res[6:8] +  '%')
 
     def open_click():
         openFileNameDialog()
-        #tumor_predict()
+        tumor_predict()
 
 
     def load_note():
@@ -198,14 +193,12 @@ def openFileNameDialog():
     options |= QFileDialog.DontUseNativeDialog
     fileName, _ = QFileDialog.getOpenFileName(MainWindow, "QFileDialog.getOpenFileName()", "",
                                                 "All Files (*);;MRI Files (*.dcm)", options=options)
-
     if fileName:
         temp_dcm = fileName.split('.')
         # Перехват dcm файлв и его конвертация
         if temp_dcm[1] == 'dcm':
             print('Check dcm!!!!')
             convert_file(fileName, temp_dcm[0] + '.jpg')
-            print("Check dcm2!!")
         # Путь для картинки в jpg
         fn = temp_dcm[0] + '.jpg'
         # Изменение размера
@@ -214,8 +207,6 @@ def openFileNameDialog():
         img = image.load_img(img_path, target_size=(image_size, image_size))
         img.save(fn)
         redraw(MainWindow, fn)
-        # except Exception as ex:
-        #     print(ex)
 
 def convert_file(dcm_file_path, jpg_file_path):
     dicom_img = dicom.read_file(dcm_file_path)
@@ -269,6 +260,7 @@ def doctor_enter():
     except Exception as ex:
         print("Connection refused...")
         print(ex)
+    # openOtherWindow()
 
 def doctor_reg():
     try:
