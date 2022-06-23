@@ -12,3 +12,6 @@
 <p align="center">
   <img width="500" alt="Enter" src="https://user-images.githubusercontent.com/45522296/175291446-4efdbb0a-1531-4b41-9bf1-15bb606f930a.png">
 </p>
+<p align="center">
+  <img width="413" alt="Main" src="https://user-images.githubusercontent.com/45522296/175292901-e779eb8d-6277-43d7-ba18-ed891f8e8474.png">
+</p>
