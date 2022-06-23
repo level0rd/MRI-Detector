@@ -138,7 +138,7 @@ def openOtherWindow():
     def openClick():
         """
 
-        load image and detect of the presence of a tumor on the image.
+        Load image and detect of the presence of a tumor on the image.
 
         """
         openFileNameDialog()
@@ -147,7 +147,7 @@ def openOtherWindow():
     def loadNote():
         """
 
-        load a patient note.
+        Load a patient note.
 
         """
         global patient_flg
