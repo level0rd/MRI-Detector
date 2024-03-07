@@ -30,7 +30,7 @@ class Patient:
         self.exist = False
 
 
-patient = Patient('n.jpg')
+patient = Patient('../n.jpg')
 
 
 class EnterWindow(QMainWindow):
