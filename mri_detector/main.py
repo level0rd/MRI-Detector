@@ -57,9 +57,7 @@ class EnterWindow(QMainWindow):
 
     def doctor_enter(self) -> None:
         """
-
         Verification the entered data with the doctors registered in the database.
-
         """
         surname = self.ui.lineSurename.text()
         name = self.ui.lineName.text()
@@ -100,9 +98,7 @@ class EnterWindow(QMainWindow):
 
     def doctor_registration(self)-> None:
         """
-
         Registration of doctor in the database.
-
         """
         surname = self.ui.lineSurename.text()
         name = self.ui.lineName.text()
@@ -150,7 +146,6 @@ class MainWindow(QMainWindow):
 
         Args:
             file_name (str): The path of the image file.
-
         """
         image = cv2.imread(file_name)
         resized_image = cv2.resize(image, (290, 290))
@@ -179,7 +174,6 @@ class MainWindow(QMainWindow):
     def tumor_predict(self) -> None:
         """
         Determine the presence of a tumor on the image.
-
         """
         img_path = os.path.join(PROJECT_DIR, patient.image_path)
         try:
@@ -204,7 +198,6 @@ class MainWindow(QMainWindow):
     def open_file_name_dialog(self) -> None:
         """
         Show FileDialog to select an image.
-
         """
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
