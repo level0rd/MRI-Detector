@@ -19,5 +19,5 @@
 ## Main form
 <p align="center">
   <img width="800" alt="Main" src="https://user-images.githubusercontent.com/45522296/175292901-e779eb8d-6277-43d7-ba18-ed891f8e8474.png">
-  <img width="413" alt="175292901-e779eb8d-6277-43d7-ba18-ed891f8e8474" src="https://github.com/level0rd/MRI-Detector/assets/45522296/914cad90-8e16-449e-9765-0de2636621ff">
+  <img width="800" alt="175292901-e779eb8d-6277-43d7-ba18-ed891f8e8474" src="https://github.com/level0rd/MRI-Detector/assets/45522296/914cad90-8e16-449e-9765-0de2636621ff">
 </p>
