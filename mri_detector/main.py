@@ -140,106 +140,7 @@ class MainWindow(QMainWindow):
         self.ui.actiExit.triggered.connect(QApplication.instance().quit)
         self.ui.actiAbout.triggered.connect(self.about)
 
-    def redraw(self, file_name: str) -> None:
-        """
-        Refreshes the image.
-
-        Args:
-            file_name (str): The path of the image file.
-        """
-        image = cv2.imread(file_name)
-        resized_image = cv2.resize(image, (290, 290))
-        rgb_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
-        h, w, ch = rgb_image.shape
-        bytes_per_line = ch * w
-        q_img = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
-
-        pixmap = QPixmap.fromImage(q_img)
-        self.ui.label.setPixmap(pixmap)
-
-    def convert_file(dcm_file_path: str, jpg_file_path: str) -> None:
-        """
-        Convert a DICOM file to a JPG file.
-
-        Args:
-            dcm_file_path (str): The path to the DICOM file.
-            jpg_file_path (str): The path to save the JPG file.
-
-        """
-        dicom_img = dicom.read_file(dcm_file_path)
-        img = apply_voi_lut(dicom_img.pixel_array, dicom_img)
-        scaled_img = cv2.convertScaleAbs(img - np.min(img), alpha=(255.0 / min(np.max(img) - np.min(img), 10000)))
-        cv2.imwrite(jpg_file_path, scaled_img)
-
-    def tumor_predict(self) -> None:
-        """
-        Determine the presence of a tumor on the image.
-        """
-        img_path = os.path.join(PROJECT_DIR, patient.image_path)
-        try:
-            model = load_model('VGG19_best4_orig.h5')
-        except Exception as ex:
-            print(ex)
-        img = image.load_img(img_path, target_size=(IMAGE_SIZE, IMAGE_SIZE))
-        x = image.img_to_array(img)
-        x /= 255
-        x = np.expand_dims(x, axis=0)
-
-        prediction = model.predict(x)
-        if prediction[[0]] < 0.5:
-            patient.tumor = 0
-            patient.prediction = str(1 - prediction[[0]])
-            self.ui.lineRes.setText('Норма, вероятность: ' + patient.prediction[4:6] + '.' + patient.prediction[6:8] +  '%')
-        else:
-            patient.tumor = 1
-            patient.prediction = str(prediction[[0]])
-            self.ui.lineRes.setText('Опухоль, вероятность: '  + patient.prediction[4:6] + '.' + patient.prediction[6:8] +  '%')
-
-    def open_file_name_dialog(self) -> None:
-        """
-        Show FileDialog to select an image.
-        """
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-                                                  "All Files (*);;MRI Files (*.dcm)", options=options)
-
-        if file_name:
-            temp_dcm = file_name.split('.')
-            # Intercepting and converting DCM files
-            if temp_dcm[1] == 'dcm':
-                self.convert_file(file_name, temp_dcm[0] + '.jpg')
-            # Path to the image in JPG
-            patient.image_path = temp_dcm[0] + '.jpg'
-            # Resize
-            img_path = os.path.join(PROJECT_DIR, patient.image_path)
-            img = image.load_img(img_path, target_size=(IMAGE_SIZE, IMAGE_SIZE))
-            img.save(patient.image_path)
-            self.redraw(patient.image_path)
-
-    def string_to_date(sself, date: str) -> str:
-        """
-        Convert string to date.
-
-        Args:
-            date (str): The date string in the format 'dd.mm.yyyy'.
-
-        Returns:
-            str: The converted date string in the format 'yyyy-mm-dd'.
-        """
-        temp_str = date.split('.')
-        sql_date = temp_str[2] + '-' + temp_str[1] + '-' + temp_str[0]
-        return sql_date
-
-    def open_mri_file(self) -> None:
-        """
-        Load a patient note.
-
-        """
-        self.open_file_name_dialog()
-        self.tumor_predict()
-
-    def save_patient(self) -> None:
+        def save_patient(self) -> None:
         """
         Saving patient information or/and recognition results.
         """
@@ -334,7 +235,106 @@ class MainWindow(QMainWindow):
                 connection.close()
         except Exception as ex:
             print("Connection refused...")
+            print(ex)    
+
+    def open_mri_file(self) -> None:
+        """
+        Load a patient note.
+
+        """
+        self.open_file_name_dialog()
+        self.tumor_predict()
+
+    def open_file_name_dialog(self) -> None:
+        """
+        Show FileDialog to select an image.
+        """
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                  "All Files (*);;MRI Files (*.dcm)", options=options)
+
+        if file_name:
+            temp_dcm = file_name.split('.')
+            # Intercepting and converting DCM files
+            if temp_dcm[1] == 'dcm':
+                self.convert_file(file_name, temp_dcm[0] + '.jpg')
+            # Path to the image in JPG
+            patient.image_path = temp_dcm[0] + '.jpg'
+            # Resize
+            img_path = os.path.join(PROJECT_DIR, patient.image_path)
+            img = image.load_img(img_path, target_size=(IMAGE_SIZE, IMAGE_SIZE))
+            img.save(patient.image_path)
+            self.redraw(patient.image_path)    
+
+    def tumor_predict(self) -> None:
+        """
+        Determine the presence of a tumor on the image.
+        """
+        img_path = os.path.join(PROJECT_DIR, patient.image_path)
+        try:
+            model = load_model('VGG19_best4_orig.h5')
+        except Exception as ex:
             print(ex)
+        img = image.load_img(img_path, target_size=(IMAGE_SIZE, IMAGE_SIZE))
+        x = image.img_to_array(img)
+        x /= 255
+        x = np.expand_dims(x, axis=0)
+
+        prediction = model.predict(x)
+        if prediction[[0]] < 0.5:
+            patient.tumor = 0
+            patient.prediction = str(1 - prediction[[0]])
+            self.ui.lineRes.setText('Норма, вероятность: ' + patient.prediction[4:6] + '.' + patient.prediction[6:8] +  '%')
+        else:
+            patient.tumor = 1
+            patient.prediction = str(prediction[[0]])
+            self.ui.lineRes.setText('Опухоль, вероятность: '  + patient.prediction[4:6] + '.' + patient.prediction[6:8] +  '%')    
+    
+    def redraw(self, file_name: str) -> None:
+        """
+        Refreshes the image.
+
+        Args:
+            file_name (str): The path of the image file.
+        """
+        image = cv2.imread(file_name)
+        resized_image = cv2.resize(image, (290, 290))
+        rgb_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_image.shape
+        bytes_per_line = ch * w
+        q_img = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
+
+        pixmap = QPixmap.fromImage(q_img)
+        self.ui.label.setPixmap(pixmap)
+
+    def convert_file(dcm_file_path: str, jpg_file_path: str) -> None:
+        """
+        Convert a DICOM file to a JPG file.
+
+        Args:
+            dcm_file_path (str): The path to the DICOM file.
+            jpg_file_path (str): The path to save the JPG file.
+
+        """
+        dicom_img = dicom.read_file(dcm_file_path)
+        img = apply_voi_lut(dicom_img.pixel_array, dicom_img)
+        scaled_img = cv2.convertScaleAbs(img - np.min(img), alpha=(255.0 / min(np.max(img) - np.min(img), 10000)))
+        cv2.imwrite(jpg_file_path, scaled_img)
+
+    def string_to_date(sself, date: str) -> str:
+        """
+        Convert string to date.
+
+        Args:
+            date (str): The date string in the format 'dd.mm.yyyy'.
+
+        Returns:
+            str: The converted date string in the format 'yyyy-mm-dd'.
+        """
+        temp_str = date.split('.')
+        sql_date = temp_str[2] + '-' + temp_str[1] + '-' + temp_str[0]
+        return sql_date
 
     def about(self) -> None:
         """
