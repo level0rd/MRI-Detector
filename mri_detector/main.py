@@ -22,7 +22,13 @@ IMAGE_SIZE = 224
 
 
 class Patient:
-    def __init__(self, image_path):
+    def __init__(self, image_path: str):
+        """
+        Initialize the Patient class.
+
+        Args:
+            image_path (str): Path to the patient's image.
+        """
         self.id_patient = 0
         self.tumor = 0
         self.prediction = 0.00
@@ -41,12 +47,15 @@ class EnterWindow(QMainWindow):
         self.ui.buttonEnter.clicked.connect(self.doctor_enter)
         self.ui.buttonRegistration.clicked.connect(self.doctor_registration)
 
-    def open_main_window(self):
+    def open_main_window(self) -> None:
+        """
+        Open the main window.
+        """
         self.mainWindow = MainWindow()
         self.mainWindow.show()
         self.hide()
 
-    def doctor_enter(self):
+    def doctor_enter(self) -> None:
         """
 
         Verification the entered data with the doctors registered in the database.
@@ -89,7 +98,7 @@ class EnterWindow(QMainWindow):
             print("Connection refused...")
             print(ex)
 
-    def doctor_registration(self):
+    def doctor_registration(self)-> None:
         """
 
         Registration of doctor in the database.
@@ -129,16 +138,18 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.ui.btnSave.clicked.connect(self.save_patient)
         self.ui.actiSave.triggered.connect(self.save_patient)
-        self.ui.btnOpen.clicked.connect(self.open_click)
-        self.ui.actiOpen.triggered.connect(self.open_click)
+        self.ui.btnOpen.clicked.connect(self.open_mri_file)
+        self.ui.actiOpen.triggered.connect(self.open_mri_file)
         self.ui.btnLoad.clicked.connect(self.load_note)
         self.ui.actiExit.triggered.connect(QApplication.instance().quit)
         self.ui.actiAbout.triggered.connect(self.about)
 
-    def redraw(self, file_name):
+    def redraw(self, file_name: str) -> None:
         """
+        Refreshes the image.
 
-        Refresh image.
+        Args:
+            file_name (str): The path of the image file.
 
         """
         image = cv2.imread(file_name)
@@ -151,22 +162,23 @@ class MainWindow(QMainWindow):
         pixmap = QPixmap.fromImage(q_img)
         self.ui.label.setPixmap(pixmap)
 
-    def convert_file(dcm_file_path, jpg_file_path):
+    def convert_file(dcm_file_path: str, jpg_file_path: str) -> None:
         """
+        Convert a DICOM file to a JPG file.
 
-        Convert dcm file to jpg file.
+        Args:
+            dcm_file_path (str): The path to the DICOM file.
+            jpg_file_path (str): The path to save the JPG file.
 
         """
-
         dicom_img = dicom.read_file(dcm_file_path)
         img = apply_voi_lut(dicom_img.pixel_array, dicom_img)
         scaled_img = cv2.convertScaleAbs(img - np.min(img), alpha=(255.0 / min(np.max(img) - np.min(img), 10000)))
         cv2.imwrite(jpg_file_path, scaled_img)
 
-    def tumor_predict(self):
+    def tumor_predict(self) -> None:
         """
-
-        Determination of the presence of a tumor on the image.
+        Determine the presence of a tumor on the image.
 
         """
         img_path = os.path.join(PROJECT_DIR, patient.image_path)
@@ -189,9 +201,8 @@ class MainWindow(QMainWindow):
             patient.prediction = str(prediction[[0]])
             self.ui.lineRes.setText('Опухоль, вероятность: '  + patient.prediction[4:6] + '.' + patient.prediction[6:8] +  '%')
 
-    def open_file_name_dialog(self):
+    def open_file_name_dialog(self) -> None:
         """
-
         Show FileDialog to select an image.
 
         """
@@ -213,30 +224,31 @@ class MainWindow(QMainWindow):
             img.save(patient.image_path)
             self.redraw(patient.image_path)
 
-    def string_to_date(self, date):
+    def string_to_date(sself, date: str) -> str:
         """
-
         Convert string to date.
 
+        Args:
+            date (str): The date string in the format 'dd.mm.yyyy'.
+
+        Returns:
+            str: The converted date string in the format 'yyyy-mm-dd'.
         """
         temp_str = date.split('.')
         sql_date = temp_str[2] + '-' + temp_str[1] + '-' + temp_str[0]
         return sql_date
 
-    def open_click(self):
+    def open_mri_file(self) -> None:
         """
-
-        load a patient note.
+        Load a patient note.
 
         """
         self.open_file_name_dialog()
         self.tumor_predict()
 
-    def save_patient(self):
+    def save_patient(self) -> None:
         """
-
         Saving patient information or/and recognition results.
-
         """
         surname = self.ui.lineSurename.text()
         name = self.ui.lineName.text()
@@ -284,11 +296,9 @@ class MainWindow(QMainWindow):
             print("Connection refused...")
             print(ex)
 
-    def load_note(self):
+    def load_note(self) -> None:
         """
-
-        load a patient note.
-
+        Load a patient note.
         """
         surname = self.ui.lineSurename.text()
         name = self.ui.lineName.text()
@@ -333,11 +343,9 @@ class MainWindow(QMainWindow):
             print("Connection refused...")
             print(ex)
 
-    def about(self):
+    def about(self) -> None:
         """
-
         Show Readme.
-
         """
         QMessageBox.about(self, "О программе", "Автор: Костоправов Антон Александрович\nГруппа: 4231\n2021 год.")
 
