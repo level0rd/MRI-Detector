@@ -1,9 +1,9 @@
 # MRI-detector
 The program, using the VGG19 convolutional neural network, detects tumors on MRI images. Before using the program, the doctor needs to register. After registration, it is necessary to enter the last name, first name, and password. Upon successful login, the main window of the program becomes available. The program allows you to:
-• load the MRI image of the patient (after successful loading, the image is automatically processed by the neural network);
-• enter necessary patient information (last name, first name, date of birth, and necessary additional information);
-• save patient information and recognition results;
-• load previously saved information.
+- load the MRI image of the patient (after successful loading, the image is automatically processed by the neural network);
+- enter necessary patient information (last name, first name, date of birth, and necessary additional information);
+- save patient information and recognition results;
+- load previously saved information.
 MySQL database is used for storing information.
 
 ## Install
