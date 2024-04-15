@@ -4,6 +4,7 @@ The program, using the VGG19 convolutional neural network, detects tumors on MRI
 - enter necessary patient information (last name, first name, date of birth, and necessary additional information);
 - save patient information and recognition results;
 - load previously saved information.
+
 MySQL database is used for storing information.
 
 ## Install
